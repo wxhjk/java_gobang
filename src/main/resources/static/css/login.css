@@ -1,0 +1,74 @@
+/* 实现登录页面的样式 */
+
+.login-content {
+    width: 100%;
+    height: calc(100% - 50px);
+    /* 让内部的登录对话框能够垂直水平居中 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-dialog {
+    width: 400px;
+    height: 370px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+}
+
+.login-content h3 {
+    text-align: center;
+    padding: 30px 0;
+    font-size: 30px;
+}
+
+.login-content .row {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.login-content .row span {
+    display: block;
+    /* 输入固定宽度,使文字和输入框有固定间隙 */
+    width: 100px;
+    font-weight: 600;
+}
+
+.login-content #username,
+.login-content #password {
+    width: 200px;
+    height: 40px;
+    font-size: 20px;
+    text-indent: 10px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+}
+
+.login-content #password2 {
+    width: 200px;
+    height: 40px;
+    font-size: 20px;
+    text-indent: 10px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+}
+
+.login-content #submit {
+    width: 300px;
+    height: 50px;
+    color: white;
+    background-color: orange;
+    border: none;
+    font-size: 20px;
+    border-radius: 10px;
+}
+
+.login-content #submit:active {
+    background-color: #666;
+}

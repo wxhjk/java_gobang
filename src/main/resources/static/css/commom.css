@@ -1,0 +1,69 @@
+/* 放置一些公共的样式,比如导航栏 */
+
+/* 清楚浏览器默认样式 */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* 给整体页面设置一个高度 */
+html, body {
+    /* 设置页面高度和浏览器窗口高度一致 */
+    height: 100%;
+    /* 设置背景图片 */
+    /* background-image: url(../image/Inkyung_ArtGravia\ 2020-09-10\ vol.190_078.jpg); */
+    background-image: url(../image/10.jpg);
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+/* 给导航栏设置样式 */
+.nav {
+    width: 100%;
+    height: 50px;
+    background-color: rgba(60, 60, 60, 0.4);
+    color: white;
+    /* 让导航里的内容垂直居中 */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.nav img {
+    /* 给图片设置尺寸 */
+    width: 40px;
+    height: 40px;
+    /* 把图片变圆 */
+    border-radius: 50%;
+    /* 让图片距离左侧有点空隙 */
+    margin-left: 30px;
+    /* 让图片距离右边的标题有空隙 */
+    margin-right: 10px;
+}
+
+.nav .spacer {
+    width: 70%;
+}
+
+.nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0 10px;
+}
+
+/* 版心的样式,让这个内容让多个页面引用 */
+.container {
+    width: 1000px;
+    height: calc(100% - 50px);
+    /* 水平居中 */
+    margin: 0 auto;
+    /* 设置弹性布局 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    /* 临时设置个背景色,方便观察版心位置
+    background-color: green; */
+}

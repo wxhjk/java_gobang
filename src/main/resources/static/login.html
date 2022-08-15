@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+
+    <link rel="stylesheet" href="css/commom.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <div class="nav">
+        <!-- log -->
+        <img src="image/下载.png" alt="">
+        <!-- 标题 -->
+        <span class="title">联机五子棋</span>
+        <!-- 空白的占位符 -->
+        <span class="spacer"></span>
+        <!-- 右边的几个链接 -->
+        <a href="">注册</a>
+    </div>
+
+    <!-- 登录页面的容器 -->
+    <div class="login-content">
+        <div class="login-dialog" style="height: 300px">
+            <!-- 标题 -->
+            <h3>登 录</h3>
+            <!-- 输入用户名 -->
+            <div class="row">
+                <span>用户名</span>
+                <input type="text" id="username">
+            </div>
+            <!-- 输入密码 -->
+            <div class="row">
+                <span>密码</span>
+                <input type="password" id="password">
+            </div>
+            <!-- 提交按钮 -->
+            <div class="row">
+                <button id="submit" onclick="mysub()">提 交</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script>
+
+        function mysub() {
+            // 1. 得到用户名和密码
+            var username = jQuery("#username");
+            var password = jQuery("#password");
+
+            // 2. 进行非空校验
+            if (jQuery.trim(username.val()) == "" || jQuery.trim(password.val()) == "") {
+                alert("请先输入用户名或密码!");
+                username.focus;
+                return;
+            }
+
+            // 3. 发起 ajax 请求
+            jQuery.getJSON("gobang/login", {
+                "username": jQuery.trim(username.val()),
+                "password": jQuery.trim(password.val()) 
+            },
+            function(data) {
+                if (data != null && data.success == 200) {
+                    // 后端成功访问
+                    if (data.state == 1) {
+                        alert("登录成功!");
+                        // TODO 跳转到游戏大厅
+                        location.assign("/game_hall.html")
+                    }else {
+                        alert(data.msg);
+                    }
+                }else {
+                    alert("接口访问失败!");
+                }
+            });
+        }
+    </script>
+</body>
+</html>

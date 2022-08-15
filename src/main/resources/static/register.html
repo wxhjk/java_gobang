@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册</title>
+
+    <link rel="stylesheet" href="css/commom.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <div class="nav">
+        <!-- log -->
+        <img src="image/下载.png" alt="">
+        <!-- 标题 -->
+        <span class="title">联机五子棋</span>
+        <!-- 空白的占位符 -->
+        <span class="spacer"></span>
+    </div>
+
+    <!-- 登录页面的容器 -->
+    <div class="login-content">
+        <div class="login-dialog">
+            <!-- 标题 -->
+            <h3>注 册</h3>
+            <!-- 输入用户名 -->
+            <div class="row">
+                <span>用户名</span>
+                <input type="text" id="username">
+            </div>
+            <!-- 输入密码 -->
+            <div class="row">
+                <span>密码</span>
+                <input type="password" id="password">
+            </div>
+            <div class="row">
+                <span>确认密码</span>
+                <input type="password" id="password2">
+            </div>
+            <!-- 提交按钮 -->
+            <div class="row">
+                <button id="submit" onclick="mysub()">提 交</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/jquery.min.js"></script>
+    <script>
+        function mysub() {
+            // 1. 得到用户名和密码
+            var username = jQuery("#username");
+            var password = jQuery("#password");
+            var password2 = jQuery("#password2");
+
+            // 2. 进行非空校验
+            if (jQuery.trim(username.val()) == "" || jQuery.trim(password.val()) == "" || jQuery.trim(password2.val()) == "") {
+                alert("请先输入用户名密码! ");
+                username.focus;
+                return;
+            }
+
+            // 3. 判断两次密码是否相等
+            if (password.val() != password2.val()) {
+                alert("密码输入不相等,请重新输入 ");
+                password.focus;
+                return;
+            }
+
+            // 4. 发起 ajax 请求
+            jQuery.getJSON("/gobang/register",
+            {
+                "username": jQuery.trim(username.val()),
+                "password": jQuery.trim(password.val())
+            },
+            function(data) {
+                if (data != null && data.success == 200) {
+                    // 后端访问成功
+                    if (data.state == 1) {
+                        alert("注册成功! ");
+                        location.assign("login.html");
+                    }else {
+                        alert(data.msg);
+                    }
+                }else {
+                    alert("接口访问失败! ")
+                }
+            });
+        }
+    </script>
+</body>
+</html>

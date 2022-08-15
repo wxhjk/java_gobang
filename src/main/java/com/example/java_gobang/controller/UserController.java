@@ -26,7 +26,7 @@ public class UserController {
     @Autowired
     private HttpServletResponse response;
 
-    @PostMapping("/login")
+    @RequestMapping("/login")
     public HashMap<String, Object>  login (String username,String password) {
         HashMap<String,Object> result = new HashMap<>();
         result.put("success",200);
@@ -60,7 +60,7 @@ public class UserController {
         return result;
     }
 
-    @PostMapping("/register")
+    @RequestMapping("/register")
     public HashMap<String, Object>  register(String username,String password) {
         HashMap<String,Object> result = new HashMap<>();
         result.put("success",200);
