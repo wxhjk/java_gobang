@@ -61,7 +61,7 @@ html, body {
     margin: 0 auto;
     /* 设置弹性布局 */
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
 
     /* 临时设置个背景色,方便观察版心位置

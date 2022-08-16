@@ -20,7 +20,10 @@ public class Matcher {
     @Autowired
     private OnlineUserManager onlineUserManager;
 
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private RoomManager roomManager;
 
     // 创建三个匹配队列
     private Queue<User> normalQueue = new LinkedList<>();
@@ -33,18 +36,21 @@ public class Matcher {
         if (user.getScore() < 2000) {
             synchronized (normalQueue) {
                 normalQueue.offer(user);
+                normalQueue.notify();
             }
-            System.out.println("把玩家: " + user.getUsername() + "加入到了 normalQueue 中");
+            System.out.println("把玩家: " + user.getUsername() + " 加入到了 normalQueue 中");
         }else if (user.getScore() >= 2000 && user.getScore() < 3000) {
             synchronized (highQueue) {
                 highQueue.offer(user);
+                highQueue.notify();
             }
-            System.out.println("把玩家: " + user.getUsername() + "加入到了 highQueue 中");
+            System.out.println("把玩家: " + user.getUsername() + " 加入到了 highQueue 中");
         }else {
             synchronized (veryHighQueue) {
                 veryHighQueue.offer(user);
+                veryHighQueue.notify();
             }
-            System.out.println("把玩家: " + user.getUsername() + "加入到了 veryHighQueue 中");
+            System.out.println("把玩家: " + user.getUsername() + " 加入到了 veryHighQueue 中");
         }
     }
 
@@ -54,17 +60,17 @@ public class Matcher {
             synchronized (normalQueue) {
                 normalQueue.remove(user);
             }
-            System.out.println("把玩家: " + user.getUsername() + "从 normalQueue 中移除了");
+            System.out.println("把玩家: " + user.getUsername() + " 从 normalQueue 中移除了");
         }else if (user.getScore() >= 2000 && user.getScore() < 3000) {
             synchronized (highQueue) {
                 highQueue.remove(user);
             }
-            System.out.println("把玩家: " + user.getUsername() + "从 highQueue 中移除了");
+            System.out.println("把玩家: " + user.getUsername() + " 从 highQueue 中移除了");
         }else {
             synchronized (veryHighQueue) {
                 veryHighQueue.remove(user);
             }
-            System.out.println("把玩家: " + user.getUsername() + "从 veryHighQueue 中移除了");
+            System.out.println("把玩家: " + user.getUsername() + " 从 veryHighQueue 中移除了");
         }
     }
 
@@ -107,8 +113,11 @@ public class Matcher {
             try {
                 // 1. 检测队列中人数是否达到 2
                 // 如果队列中人数不足,直接退出,等待下一轮扫描
-                if (matchQueue.size() < 2) {
-                    return;
+                // 队列的初识情况可能是空
+                // 往队列中添加一个元素,这个时候,是仍然不能进行后续匹配操作的
+                // 因此在这里使用 while 循环检查更加合理
+                while (matchQueue.size() < 2) {
+                    matchQueue.wait();
                 }
                 // 2. 尝试从队列中取出两个玩家
                 User player1 = matchQueue.poll();
@@ -144,7 +153,12 @@ public class Matcher {
                     return;
                 }
 
-                // 4. TODO 把这两个玩家放到同一个游戏房间中
+                // 4. 把这两个玩家放到同一个游戏房间中
+                Room room = new Room();
+                // 暂时先不进行一个房间内玩家的设置
+//                room.setUser1(player1);
+//                room.setUser2(player2);
+                roomManager.add(room,player1.getUserId(),player2.getUserId());
 
                 // 5. 给玩家反馈信息,你匹配到对手了
                 // 通过 websocket 返回一个 message 为 "matchSuccess" 这样的响应
@@ -159,7 +173,7 @@ public class Matcher {
                 response2.setMessage("matchSuccess");
                 session2.sendMessage(new TextMessage(objectMapper.writeValueAsString(response2)));
 
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         }

@@ -38,8 +38,8 @@ public class MatchAPI extends TextWebSocketHandler {
         User user = (User) session.getAttributes().get("user");
 
         // 2. 先判断当前用户是否已经登录过(已经是在线状态的话,禁止多开),如果已经在线,就不该继续进行后续逻辑
-        WebSocketSession tmpSession = onlineUserManager.getFromGameHall(user.getUserId());
-        if (tmpSession != null) {
+        if (onlineUserManager.getFromGameHall(user.getUserId()) != null
+                || onlineUserManager.getFromGameRoom(user.getUserId()) != null) {
             // 当前用户已经登录了!
             // 针对这个情况要告诉客户端,你这里重复登录了
             MatchResponse response = new MatchResponse();
@@ -51,7 +51,7 @@ public class MatchAPI extends TextWebSocketHandler {
         }
         // 3. 拿到了身份信息之后,就可以把玩家设置成在线状态了
         onlineUserManager.enterGameHall(user.getUserId(),session);
-        System.out.println("玩家: " + user.getUsername() + "进入游戏大厅!");
+        System.out.println("玩家: " + user.getUsername() + " 进入游戏大厅!");
     }
 
     @Override
@@ -92,6 +92,7 @@ public class MatchAPI extends TextWebSocketHandler {
         }
         // 如果玩家在匹配中, 而 websocket 断开了,就应该移除匹配队列
         matcher.remove(user);
+
     }
 
     @Override

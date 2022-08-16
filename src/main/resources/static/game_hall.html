@@ -43,13 +43,15 @@
         // 此处进行初始化 websocket 并且实现前端的匹配逻辑
         let websocket = new WebSocket("ws://127.0.0.1:8080/findMatch");
         websocket.onopen = function() {
-            console("onopen");
+            console.log("onopen");
         }
         websocket.onclose = function() {
-            console("onclose");
+            console.log("onclose");
+            alert("当前和服务器的连接已断开,请重新登录");
+            location.assign('/login.html');
         }
         websocket.onerror = function() {
-            console("onerror");
+            console.log("onerror");
         }
 
         // 监听页面关闭事件,在页面关闭之前,手动调用这里的 websocket 的 close 方法
