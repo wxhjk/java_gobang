@@ -11,4 +11,9 @@ public interface UserMapper {
 
     User selectByName(String username);
 
+    // 总比赛场数 + 1 获胜场数 + 1 天梯分数 + 100
+    void userWin(int userId);
+
+    // 总比赛场数 + 1 获胜场数 不变 天梯分数 - 100
+    void userLose(int userId);
 }

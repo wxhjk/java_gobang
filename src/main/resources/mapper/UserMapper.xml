@@ -7,6 +7,17 @@
         insert into user values(null, #{username}, #{password}, 1000, 0, 0)
     </insert>
 
+
+    <update id="userLose">
+        update user set totalCount = totalCount + 1, score = score - 100
+        where userId = #{userId}
+    </update>
+
+    <update id="userWin">
+        update user set totalCount = totalCount + 1, winCount = winCount + 1, score = score + 100
+        where userId = #{userId}
+    </update>
+
     <select id="selectByName" resultType="com.example.java_gobang.model.User">
         select * from user where username = #{username}
     </select>

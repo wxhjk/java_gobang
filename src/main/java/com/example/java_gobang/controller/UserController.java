@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.HashMap;
 
 @RestController
@@ -96,6 +97,15 @@ public class UserController {
     public Object getUserInfo() {
         HttpSession session = request.getSession(false);
         User user = (User) session.getAttribute("user");
-        return user;
+        // 拿到这个 user 对象并不直接返回,而是重新回到数据库中查找
+        User newUser = userService.selectByName(user.getUsername());
+        return newUser;
+    }
+
+    @RequestMapping("/logOut")
+    public void logOut() throws IOException {
+        HttpSession session = request.getSession(false);
+        session.removeAttribute("user");
+        response.sendRedirect(request.getContextPath() + "/login.html");
     }
 }

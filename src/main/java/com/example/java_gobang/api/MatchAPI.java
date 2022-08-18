@@ -43,10 +43,12 @@ public class MatchAPI extends TextWebSocketHandler {
             // 当前用户已经登录了!
             // 针对这个情况要告诉客户端,你这里重复登录了
             MatchResponse response = new MatchResponse();
-            response.setOk(false);
+            response.setOk(true);
             response.setReason("当前禁止多开");
+            response.setMessage("repeatConnection");
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(response)));
-            session.close();
+            // 此处直接关闭太激进了, 我们还是返回一个特殊的 message 供客户端来进行处理
+            // session.close();
             return;
         }
         // 3. 拿到了身份信息之后,就可以把玩家设置成在线状态了
@@ -89,9 +91,10 @@ public class MatchAPI extends TextWebSocketHandler {
         WebSocketSession tmpSession = onlineUserManager.getFromGameHall(user.getUserId());
         if (tmpSession == session) {
             onlineUserManager.exitGameHall(user.getUserId());
+            // 如果玩家在匹配中, 而 websocket 断开了,就应该移除匹配队列
+            matcher.remove(user);
         }
-        // 如果玩家在匹配中, 而 websocket 断开了,就应该移除匹配队列
-        matcher.remove(user);
+
 
     }
 
@@ -102,8 +105,8 @@ public class MatchAPI extends TextWebSocketHandler {
         WebSocketSession tmpSession = onlineUserManager.getFromGameHall(user.getUserId());
         if (tmpSession == session) {
             onlineUserManager.exitGameHall(user.getUserId());
+            // 如果玩家在匹配中, 而 websocket 断开了,就应该移除匹配队列
+            matcher.remove(user);
         }
-        // 如果玩家在匹配中, 而 websocket 断开了,就应该移除匹配队列
-        matcher.remove(user);
     }
 }

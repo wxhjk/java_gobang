@@ -46,27 +46,30 @@ websocket.onmessage = function(event) {
     console.log("[handlerGameReady] " + event.data);
     let resp = JSON.parse(event.data);
 
-    if (resp.message != "gameReady") {
-        console.log("响应类型错误");
-        return;
-    }
-
     if (!resp.ok) {
         alert("连接游戏失败! reason: " + resp.reason);
         // 如果出现连接失败的情况,回到游戏大厅
-        location.assign('/game_hall.html');
+        location.replace('/game_hall.html');
         return;
     }
 
-    gameInfo.roomId = resp.roomId;
-    gameInfo.thisUserId = resp.thisUserId;
-    gameInfo.thatUserId = resp.thatUserId;
-    gameInfo.isWhite = resp.isWhite;
+    if (resp.message == "gameReady") {
+        gameInfo.roomId = resp.roomId;
+        gameInfo.thisUserId = resp.thisUserId;
+        gameInfo.thatUserId = resp.thatUserId;
+        gameInfo.isWhite = (resp.whiteUser == resp.thisUserId);
 
-    // 初始化棋盘
-    initGame();
-    // 设置显示区域的内容
-    setScreenText(gameInfo.isWhite);
+        // 初始化棋盘
+        initGame();
+        // 设置显示区域的内容
+        setScreenText(gameInfo.isWhite);
+    }else if (resp.message == "repeatConnection") {
+        alert("检测到游戏多开! 请使用其他账号登录!");
+        location.replace('/login.html');
+    }else {
+        console.log("响应类型错误");
+    }
+    
 }
 
 
@@ -141,13 +144,98 @@ function initGame() {
         let col = Math.floor(x / 30);
         let row = Math.floor(y / 30);
         if (chessBoard[row][col] == 0) {
-            // TODO 发送坐标给服务器, 服务器要返回结果
+            // 发送坐标给服务器, 服务器要返回结果
+            send(row,col);
 
-            oneStep(col, row, gameInfo.isWhite);
-            chessBoard[row][col] = 1;
+
+            // 留到浏览器收到落子响应的时候再处理
+            // oneStep(col, row, gameInfo.isWhite);
+            // chessBoard[row][col] = 1;
         }
     }
 
     // TODO 实现发送落子请求逻辑, 和处理落子响应逻辑. 
+
+    function send(row, col) {
+        let req = {
+            message: 'putChess',
+            userId: gameInfo.thisUserId,
+            row: row,
+            col: col
+        };
+
+        websocket.send(JSON.stringify(req));
+    }
+
+    // 之前 websocket.onmessage 主要使用来处理游戏就绪响应,在游戏就绪之后,初始化完成之后就不需要就绪响应了
+    // 就在这个 initGame 内部,修改 websocket.onmessage 方法,让这个方法里面针对落子响应来进行处理
+
+    websocket.onmessage = function(event) {
+        console.log("[handlerPutChess] " + event.data);
+
+        let resp = JSON.parse(event.data);
+        if (resp.message != 'putChess') {
+            console.log("响应类型错误!");
+            return;
+        }
+
+        // 先判断这个响应是自己落的子,还是对方落得子
+        if (resp.userId == gameInfo.thisUserId) {
+            // 我自己落的子
+            // 根据我自己子的颜色,来绘制一个棋子
+            oneStep(resp.col, resp.row, gameInfo.isWhite);
+        }else if (resp.userId == gameInfo.thatUserId) {
+            // 对手落的子
+            oneStep(resp.col, resp.row, !gameInfo.isWhite);
+        }else {
+            // 响应错误! userId 是有问题的!
+            console.log("[handlerPutChess] resp userId 错误!");
+            return;
+        }
+
+
+        // 给对应的位置设为 1,方便后续逻辑判定当前位置是否已经有子了
+        chessBoard[resp.row][resp.col] = 1;
+
+        // 交换双方的落子轮次
+        me = !me;
+        setScreenText(me);
+
+        // 判断游戏是否结束
+        let screenDiv = document.querySelector('#screen');
+        if (resp.winner != 0) {
+            if (resp.winner == gameInfo.thisUserId) {
+                // alert("你赢了!");
+                screenDiv.innerHTML = '你赢了!';
+            }else if (resp.winner == gameInfo.thatUserId) {
+                // alert("你输了!");
+                screenDiv.innerHTML = '你输了!';
+            }else {
+                alert("winner 字段错误! " + resp.winner);
+            }
+
+            
+            
+            // 回到游戏大厅
+            // location.assign("/game_hall.html");
+
+            // 增加一个按钮,让玩家点击之后,再次回到游戏大厅
+            let backBtn = document.createElement('button');
+            backBtn.innerHTML = '回到大厅';
+            backBtn.onclick = function() {
+                location.replace('/game_hall.html');
+            }
+            let fatherDiv = document.querySelector('.container>div');
+            fatherDiv.appendChild(backBtn);
+
+        }
+    }
+
+    // let sleep = function (time) {
+    //     let now = Date.now() // 获取当前毫秒数
+    //     // 设置while循环，循环条件为：实时时间减去记录时间小于3s，否则则循环结束
+    //     while(Date.now() - now < time){}
+    // }
+
 }
 

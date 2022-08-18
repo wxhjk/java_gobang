@@ -19,4 +19,11 @@ public class UserService {
         return userMapper.selectByName(username);
     }
 
+    public void userWin(int userId) {
+        userMapper.userWin(userId);
+    }
+
+    public void userLose(int userId) {
+        userMapper.userLose(userId);
+    }
 }
